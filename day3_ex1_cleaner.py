@@ -38,11 +38,10 @@ def normalise_row(row: pd.Series) -> pd.Series:
         if pd.notna(row.get("destination"))
         else None
     )
-
-    delay = pd.to_numeric(row.get("delay_days"), errors="coerce")
+    delay = pd.to_numeric(str(row.get("delay_days", "")), errors="coerce")
     delay_days = None if pd.isna(delay) else int(delay)
 
-    cost = pd.to_numeric(row.get("cost_usd"), errors="coerce")
+    cost = pd.to_numeric(str(row.get("cost_usd", "")), errors="coerce")
     cost_usd = None if pd.isna(cost) else float(cost)
 
     return pd.Series(

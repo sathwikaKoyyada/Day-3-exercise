@@ -122,62 +122,6 @@ API_RESPONSE = {
 
 def extract_shipment_record(shipment: dict) -> dict:
     status = shipment.get("status", {})
-    print(status)
-
-
-def extract_shipment_record(shipment: dict) -> dict:
-    status = shipment.get("status", {})
-    carrier = shipment.get("carrier", {})
-    print(status)
-    print(carrier)
-
-
-def extract_shipment_record(shipment: dict) -> dict:
-    status = shipment.get("status", {})
-    carrier = shipment.get("carrier", {})
-    route = shipment.get("route", {})
-    origin = route.get("origin", {})
-    destination = route.get("destination", {})
-    print(status)
-    print(carrier)
-    print(origin)
-    print(destination)
-
-
-def extract_shipment_record(shipment: dict) -> dict:
-    status = shipment.get("status", {})
-    carrier = shipment.get("carrier", {})
-    route = shipment.get("route", {})
-    origin = route.get("origin", {})
-    destination = route.get("destination", {})
-    charges = shipment.get("charges", {})
-    events = shipment.get("events", [])
-    print(charges)
-    print(events)
-
-
-def extract_shipment_record(shipment: dict) -> dict:
-    status = shipment.get("status", {})
-    carrier = shipment.get("carrier", {})
-    route = shipment.get("route", {})
-    origin = route.get("origin", {})
-    destination = route.get("destination", {})
-    charges = shipment.get("charges", {})
-    events = shipment.get("events", [])
-
-    if events:
-        latest_event_type = events[-1].get("type")
-        latest_event_loc = events[-1].get("location")
-    else:
-        latest_event_type = None
-        latest_event_loc = None
-
-    print(latest_event_type)
-    print(latest_event_loc)
-
-
-def extract_shipment_record(shipment: dict) -> dict:
-    status = shipment.get("status", {})
     carrier = shipment.get("carrier", {})
     route = shipment.get("route", {})
     origin = route.get("origin", {})
@@ -228,12 +172,14 @@ def parse_api_response(response: dict) -> list[dict]:
 
 
 def compute_carrier_summary(records: list[dict]) -> list[dict]:
-    groups = {}
+    groups: dict[str, list[dict]] = {}
 
     for record in records:
-        code = record.get("carrier_code")
+        code = str(record.get("carrier_code", "UNKNOWN"))
+
         if code not in groups:
             groups[code] = []
+
         groups[code].append(record)
 
     summary = []
@@ -242,11 +188,7 @@ def compute_carrier_summary(records: list[dict]) -> list[dict]:
         carrier_name = group_records[0].get("carrier_name")
         shipment_count = len(group_records)
 
-        total_revenue = sum(
-            r.get("charge_total")
-            for r in group_records
-            if r.get("charge_total") is not None
-        )
+        total_revenue = sum(float(r.get("charge_total", 0)) for r in group_records)
 
         delayed_count = sum(1 for r in group_records if r.get("delay_days", 0) > 0)
 
